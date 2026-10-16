@@ -4,6 +4,8 @@
 
 - 'im taiwanese'
 
+- я гей
+
 ## Collaboration test
 
 This update was submitted through a pull request to verify the repository's
