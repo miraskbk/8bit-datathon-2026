@@ -3,3 +3,8 @@
 - `ml hackathon`
 
 - 'im taiwanese'
+
+## Collaboration test
+
+This update was submitted through a pull request to verify the repository's
+collaboration workflow.
