@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "video-violation-detector"
+version = "0.1.0"
+description = "Jury-ready API for classifying rule violations in MOV videos"
+requires-python = ">=3.10,<3.13"
+dependencies = [
+  "av>=16.0,<17",
+  "fastapi>=0.115,<1",
+  "numpy>=1.26,<3",
+  "openpyxl>=3.1,<4",
+  "pillow>=10,<12",
+  "pydantic-settings>=2.6,<3",
+  "python-multipart>=0.0.12,<1",
+  "torch>=2.2,<3",
+  "torchvision>=0.17,<1",
+  "uvicorn[standard]>=0.30,<1",
+]
+
+[project.optional-dependencies]
+dev = ["httpx>=0.27,<1", "pytest>=8,<9"]
+
+[project.scripts]
+violation-api = "app.main:run"
+violation-train = "app.train:run"
+violation-train-types = "app.train_types:run"
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

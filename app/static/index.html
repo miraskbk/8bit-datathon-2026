@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Forte Vision — проверка кассовой дисциплины</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Forte Vision">
+      <span class="brand-mark">F</span>
+      <span><strong>forte</strong><small>vision review</small></span>
+    </a>
+    <nav><a href="/docs" target="_blank">API documentation</a><a href="/health" target="_blank">System status</a></nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <p class="eyebrow">Локальный видеоанализ</p>
+      <h1>Проверка кассовой дисциплины по видеозаписи</h1>
+      <p class="lede">Сервис находит визуальные признаки возможных нарушений, показывает точный фрагмент и связывает наблюдение с открытым нормативным источником.</p>
+      <div class="privacy"><span></span>Видео обрабатывается локально и удаляется после анализа. Лица не распознаются.</div>
+    </section>
+
+    <section class="workspace">
+      <div class="panel upload-panel">
+        <div class="panel-heading">
+          <span class="step">01</span>
+          <div><h2>Загрузите запись</h2><p>Формат MOV, до 35 МБ и 3 минут</p></div>
+        </div>
+
+        <label class="dropzone" id="dropzone" for="video-input">
+          <input id="video-input" type="file" accept=".mov,video/quicktime">
+          <span class="upload-icon">↑</span>
+          <strong id="drop-title">Перетащите видео сюда</strong>
+          <span id="drop-subtitle">или выберите файл на компьютере</span>
+        </label>
+
+        <div class="key-row">
+          <label for="api-key">X-API-Key</label>
+          <input id="api-key" type="password" placeholder="Введите ключ жюри" autocomplete="off">
+        </div>
+        <button class="primary" id="analyze-button" disabled>Запустить анализ</button>
+
+        <div class="progress-wrap" id="progress-wrap" hidden>
+          <div class="progress-copy"><strong id="progress-title">Видео принято</strong><span id="progress-time">00:00</span></div>
+          <div class="progress"><span id="progress-bar"></span></div>
+          <p id="progress-detail">Декодируем запись и анализируем последовательности действий…</p>
+        </div>
+        <p class="error" id="error" role="alert" hidden></p>
+      </div>
+
+      <div class="panel preview-panel">
+        <div class="panel-heading">
+          <span class="step">02</span>
+          <div><h2>Видео и события</h2><p>Нажмите на таймкод, чтобы перейти к эпизоду</p></div>
+        </div>
+        <div class="video-empty" id="video-empty"><span>00:00</span><p>Предпросмотр появится после выбора файла</p></div>
+        <video id="video-preview" controls playsinline hidden></video>
+        <div id="timeline" class="timeline" hidden><span></span></div>
+      </div>
+    </section>
+
+    <section class="results" id="results" hidden>
+      <div class="result-header">
+        <div><p class="eyebrow">Результат анализа</p><h2 id="verdict-title"></h2></div>
+        <span class="verdict" id="verdict-badge"></span>
+      </div>
+      <p class="result-note">Результат указывает на визуальные признаки и предназначен для проверки сотрудником. Он не является юридическим или дисциплинарным заключением.</p>
+      <div id="event-list" class="event-list"></div>
+    </section>
+
+    <section class="method">
+      <p class="eyebrow">Как работает проверка</p>
+      <div class="method-grid">
+        <article><span>1</span><h3>Временной анализ</h3><p>Модель оценивает короткие последовательности кадров, а не отдельные фотографии.</p></article>
+        <article><span>2</span><h3>Локализация</h3><p>Соседние срабатывания объединяются в событие с проверяемым таймкодом.</p></article>
+        <article><span>3</span><h3>Доказательство</h3><p>Для каждого события возвращаются три JPEG-кадра и открытый источник правила.</p></article>
+      </div>
+    </section>
+  </main>
+
+  <footer><span>ForteBank Datathon 26</span><span>Temporal model · local inference · no face identification</span></footer>
+  <script src="/static/app.js" defer></script>
+</body>
+</html>
