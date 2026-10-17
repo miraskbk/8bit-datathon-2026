@@ -218,3 +218,13 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Private hackathon data and generated artifacts
+data/*
+!data/.gitkeep
+models/*
+!models/.gitkeep
+*.mov
+*.MOV
+*.mp4
+.DS_Store
