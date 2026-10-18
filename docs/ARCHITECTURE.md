@@ -1,6 +1,6 @@
-# CashGuard integration into 8bit
+# 8bit vision architecture
 
-The default pipeline is now `cashguard`. It invokes the complete upstream
+The default pipeline is now `visioncore`. It invokes the complete upstream
 inference graph from 8bit's web upload and jury API: RT-DETRv2 + OWLv2 extraction,
 scene and anonymous person tracks, DINOv2-based safe/cash classifiers, selected
 local Qwen screen/door questions, upstream rules, and annotated evidence frames.
@@ -27,11 +27,11 @@ accuracy and NVIDIA timings must not be presented as measured 8bit results.
 - Required model components must load. Runtime model errors become `failed`;
   absent scene regions are disclosed as limited coverage, not invisible checks.
 - The API's supervised worker enforces the deadline, kills a stalled process,
-  records private results atomically and removes uploaded videos. CashGuard's
+  records private results atomically and removes uploaded videos. The vision pipeline's
   intermediate caches are private and deleted after each job; stale caches left
   by a killed worker expire with the configured TTL.
 - Separate model processes avoid mixing PyAV and OpenCV video libraries in the
-  CashGuard worker. The parent validates uploads using PyAV; the worker uses
+  vision worker. The parent validates uploads using PyAV; the worker uses
   upstream OpenCV decoding.
 
 ## Rules and limitations
@@ -53,7 +53,7 @@ inactivity requirement does not establish a breach in a short clip.
 
 FAQ 35 bans ready-made solutions. MIT licensing permits code reuse but does not establish
 hackathon eligibility. Organizer clearance remains necessary to claim compliance
-with that clause. See `third_party/CASHGUARD_NOTICE.md` for provenance and changes.
+with that clause. See `third_party/THIRD_PARTY_NOTICE.md` for provenance and changes.
 
 ## Verification
 

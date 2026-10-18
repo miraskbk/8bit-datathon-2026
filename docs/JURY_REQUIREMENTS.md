@@ -26,8 +26,8 @@ This matrix follows the supplied ForteBank Datathon 26 brief, sections 4–10 an
 | Instructions, architecture, model list | README, deployment and integration documents | Included |
 | Event types, sources, limitations | README coverage table and source registries | Included |
 | Test footage stays private and is never training input | Ignored runtime, upload deletion, no training endpoint | Implemented; operator must respect dataset policy |
-| Commercially usable components (FAQ 24) | MIT CashGuard attribution, Apache-2.0 download checks | Licensing recorded |
-| No ready-made solutions (FAQ 35) | Full CashGuard reuse disclosed | **Organizer eligibility approval unresolved** |
+| Commercially usable components (FAQ 24) | MIT third-party attribution, Apache-2.0 download checks | Licensing recorded |
+| No ready-made solutions (FAQ 35) | Third-party implementation reuse disclosed | **Organizer eligibility approval unresolved** |
 
 ## Scoring criteria
 

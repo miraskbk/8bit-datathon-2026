@@ -116,14 +116,14 @@ def parse_boxes(text: str) -> list:
 
 class VLM:
     def __init__(self, model_id=VLM_ID, device=None):
-        model_id = os.environ.get("CASHGUARD_VLM_MODEL", model_id)
-        self.backend = os.environ.get("CASHGUARD_VLM_BACKEND", "transformers")
+        model_id = os.environ.get("VISIONCORE_VLM_MODEL", model_id)
+        self.backend = os.environ.get("VISIONCORE_VLM_BACKEND", "transformers")
         if self.backend == "mlx":
             from mlx_vlm import load
 
-            configured = os.environ.get("CASHGUARD_MLX_MODEL")
+            configured = os.environ.get("VISIONCORE_MLX_MODEL")
             if not configured:
-                raise ValueError("CASHGUARD_MLX_MODEL must point to local MLX weights")
+                raise ValueError("VISIONCORE_MLX_MODEL must point to local MLX weights")
             path = Path(configured).expanduser().resolve()
             if not (path / "config.json").is_file():
                 raise FileNotFoundError(f"Local MLX model not found: {path}")

@@ -79,8 +79,8 @@ def api_docs() -> FileResponse:
 def health() -> Health:
     ready = getattr(jobs.worker, "ready", jobs.worker.loaded)
     return Health(status="ok" if ready else "starting", model_loaded=ready,
-                  model="CashGuard RT-DETRv2 + OWLv2 + DINOv2 + local Qwen",
-                  pipeline_version="cashguard-integrated-v1",
+                  model="VisionCore RT-DETRv2 + OWLv2 + DINOv2 + local Qwen",
+                  pipeline_version="visioncore-integrated-v1",
                   semantic_enabled=True)
 
 

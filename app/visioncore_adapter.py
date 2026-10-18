@@ -1,4 +1,4 @@
-"""Bridge the vendored MIT CashGuard pipeline to 8bit's UI/API contract."""
+"""Bridge the local vision pipeline to 8bit's UI/API contract."""
 from __future__ import annotations
 
 import os
@@ -9,28 +9,28 @@ from pathlib import Path
 from app.schemas import AnalysisResult, EvidenceFrame, RuleReference, ViolationEvent
 
 
-class CashGuardAdapter:
+class VisionCoreAdapter:
     def __init__(self, config):
         # No video processing may cause model downloads or telemetry.
         os.environ.update(HF_HUB_OFFLINE="1", TRANSFORMERS_OFFLINE="1", HF_HUB_DISABLE_TELEMETRY="1",
-                          CASHGUARD_VLM="1", CASHGUARD_SAFE_CLF="1", CASHGUARD_MONEY_CLF="1",
-                          CASHGUARD_VLM_MODEL=str(config.vlm_model), CASHGUARD_VLM_BACKEND=config.vlm_backend, CASHGUARD_MLX_MODEL=str(config.vlm_model))
-        from app.cashguard.pipeline import Analyzer
+                          VISIONCORE_VLM="1", VISIONCORE_SAFE_CLF="1", VISIONCORE_MONEY_CLF="1",
+                          VISIONCORE_VLM_MODEL=str(config.vlm_model), VISIONCORE_VLM_BACKEND=config.vlm_backend, VISIONCORE_MLX_MODEL=str(config.vlm_model))
+        from app.visioncore.pipeline import Analyzer
         self.analyzer = Analyzer(device=config.device)
         missing = [name for name in ("safe_clf", "money_clf", "vlm") if getattr(self.analyzer, name) is None]
         if missing:
-            raise RuntimeError("Required CashGuard components unavailable: "+", ".join(missing))
+            raise RuntimeError("Required VisionCore components unavailable: "+", ".join(missing))
         self.config = config
-        from app.cashguard.scene import CACHE
-        from app.cashguard.vlm import VLM_CACHE
+        from app.visioncore.scene import CACHE
+        from app.visioncore.vlm import VLM_CACHE
         for folder in (CACHE, VLM_CACHE):
             folder.mkdir(parents=True, exist_ok=True, mode=0o700)
             folder.chmod(0o700)
             folder.parent.chmod(0o700)
 
     def analyze(self, path: Path) -> AnalysisResult:
-        from app.cashguard.scene import CACHE
-        from app.cashguard.vlm import VLM_CACHE
+        from app.visioncore.scene import CACHE
+        from app.visioncore.vlm import VLM_CACHE
         # Cache is isolated by random job identity, never by original file name.
         identity = uuid.uuid4().hex
         try:
@@ -68,7 +68,7 @@ class CashGuardAdapter:
             raise RuntimeError("Required visual checks failed: "+", ".join(failed))
         explained = full.get("explain", [])
         if len(explained) != len(full["violations"]):
-            raise ValueError("CashGuard evidence explanations do not match events")
+            raise ValueError("VisionCore evidence explanations do not match events")
         violations = []
         for event, explanation in zip(full["violations"], explained):
             references = explanation.get("refs", [])
@@ -122,7 +122,7 @@ class CashGuardAdapter:
         meta = dict(meta)
         if "job_id" in meta:
             meta["model_run_id"] = meta.pop("job_id")
-        meta = dict(meta, pipeline="cashguard-integrated-v1", local_only=True, warnings=warnings,
+        meta = dict(meta, pipeline="visioncore-integrated-v1", local_only=True, warnings=warnings,
                     coverage={"scene":scene, "document_return":"unsupported", "face_identification":False},
                     rule_explanations=[{k:v for k,v in item.items() if k != "refs"} for item in explained])
         return AnalysisResult(verdict="violation" if violations else "no_violation", violations=violations, metadata=meta)

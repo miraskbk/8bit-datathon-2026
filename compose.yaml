@@ -6,7 +6,7 @@ services:
     gpus: all
     env_file: .env
     environment:
-      PIPELINE: cashguard
+      PIPELINE: visioncore
       VLM_BACKEND: transformers
       VLM_MODEL: /service/models/Qwen3-VL-4B-Instruct
       JOB_DIR: /service/runtime/jobs

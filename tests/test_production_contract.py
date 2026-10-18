@@ -116,7 +116,7 @@ def test_decoded_metadata_limits(tmp_path, monkeypatch, setting, value):
 
 
 def test_every_enabled_rule_has_a_kazakhstan_source():
-    from app.cashguard.registry import refs
+    from app.visioncore.registry import refs
     for code in ['A_unattended_valuables', 'B_safe_open', 'C_cash_on_desk_next_client', 'E_unauthorized_person', 'F_bag_no_check', 'G_personal_items', 'H_door_open', 'L_workstation_unlocked']:
         sources = refs(code)
         assert sources, code

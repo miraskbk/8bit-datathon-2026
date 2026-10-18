@@ -55,5 +55,5 @@ class Health(BaseModel):
     status: str
     model_loaded: bool
     model: str
-    pipeline_version: str = "cashguard-integrated-v1"
+    pipeline_version: str = "visioncore-integrated-v1"
     semantic_enabled: bool = False

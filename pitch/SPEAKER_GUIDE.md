@@ -1,6 +1,6 @@
 # Five-minute pitch script
 
-Present slides 1–8 in 300 seconds. Slides 9–10 support the two-minute Q&A. The main script contains 633 words, approximately 127 words per minute. Rehearse once with a timer and keep the ending slide visible for questions.
+Present slides 1–8 in 300 seconds. Slides 9–10 support the two-minute Q&A. The main script contains 620 words. Rehearse with a timer and keep the ending slide visible for questions.
 
 ## 1. 8bit cash-discipline video review
 
@@ -30,7 +30,7 @@ We separate an observation from facts the video cannot establish. A person behin
 
 Time: 50 seconds.
 
-All forty unique source videos completed. Thirty-two verdicts were correct: fourteen true positives and eighteen true negatives. We missed seven positives and produced one false alarm. That gives eighty percent video accuracy and sixty-six point seven percent positive recall. Median processing took twenty point eight eight seconds, with a maximum of one hundred twenty point seven one. These are development regression results. The imported classifiers trained on organizer footage, so we do not present this as unseen-camera accuracy. Timestamp and per-type accuracy still need independent labels. Improving missed events on a new camera is a central next step.
+All forty unique source videos completed. Thirty-two verdicts were correct: fourteen true positives and eighteen true negatives. We missed seven positives and produced one false alarm. That gives eighty percent video accuracy and sixty-six point seven percent positive recall. Median processing took twenty point eight eight seconds, with a maximum of one hundred twenty point seven one. These are development regression results. The classifiers trained on organizer footage, so we do not present this as unseen-camera accuracy. Timestamp and per-type accuracy still need independent labels. Improving missed events on a new camera is a central next step.
 
 ## 6. Jury access and API
 
@@ -48,7 +48,7 @@ We checked twenty-seven Python tests and the desktop and mobile browser flow wit
 
 Time: 35 seconds.
 
-The next step is a controlled pilot using permitted clips from an independent camera view. We want to measure recall, false alarms, timestamp error and whether the evidence actually supports the observation. Before judging, we must provision the public GPU service and privately hand over the URL and key. We also disclose that the integrated CashGuard implementation is MIT-licensed, while the brief bans ready-made solutions. Organizer approval for that reuse remains unresolved. We can demonstrate the local product today, with those limits stated clearly.
+The next step is a controlled pilot using permitted clips from an independent camera view. We want to measure recall, false alarms, timestamp error and whether the evidence actually supports the observation. Before judging, we must provision the public GPU service and privately hand over the URL and key. Pilot acceptance also requires independently reviewed event labels and regulatory interpretation. We can demonstrate the local product today, with those limits stated clearly.
 
 ## 9. Event coverage appendix
 
@@ -56,4 +56,4 @@ Use this slide for questions about event coverage. Every category describes a vi
 
 ## 10. Jury Q&A appendix
 
-Keep answers concrete. The twenty-seven tests check software contracts and boundaries, not unseen accuracy. The source-set study includes seven missed positives, so no claim of negligible misses is supported. Public deployment, CUDA timings and competition reuse approval are pending. Licensing permission and competition eligibility are separate questions. A bank production deployment requires its own governance, security and independent acceptance process.
+Keep answers concrete. The twenty-seven tests check software contracts and boundaries, not unseen accuracy. The source-set study includes seven missed positives, so no claim of negligible misses is supported. Public deployment, CUDA timings and independent camera-angle validation are pending. A bank production deployment requires its own governance, security and independent acceptance process.

@@ -8,7 +8,7 @@
 - [Public HTTPS deployment and jury handoff](docs/DEPLOYMENT.md)
 - [Jury API contract](#jury-api)
 - [Requirement and evaluation checklist](docs/JURY_REQUIREMENTS.md)
-- [Architecture and integration](docs/CASHGUARD_INTEGRATION.md)
+- [Architecture and integration](docs/ARCHITECTURE.md)
 - [Pitch deck and speaker guide](pitch/README.md)
 
 ## Local demo on Apple Silicon
@@ -172,7 +172,7 @@ The browser and jury use the same FastAPI endpoints. The API checks the key and 
 5. Temporal rules, deduplication, timestamp selection and 1–3 annotated JPEGs per event.
 6. An adapter adds regulatory references, coverage warnings and cautious observation language to the jury result.
 
-The Mac backend uses Qwen3-VL-8B in MLX 4-bit format. Linux uses Qwen3-VL-4B with Transformers, so results can differ. Model revisions are pinned in `tools/download_event_models.py`; downloads require Apache-2.0 model metadata. Classifier/source hashes and the copied source commit are recorded in [provenance](third_party/cashguard-provenance.json). No audio or biometric face identification is used.
+The Mac backend uses Qwen3-VL-8B in MLX 4-bit format. Linux uses Qwen3-VL-4B with Transformers, so results can differ. Model revisions are pinned in `tools/download_event_models.py`; downloads require Apache-2.0 model metadata. Classifier/source hashes and the copied source commit are recorded in [provenance](third_party/pipeline-provenance.json). No audio or biometric face identification is used.
 
 ## Event coverage and regulatory basis
 
@@ -236,7 +236,7 @@ Security controls include constant-time key comparison, auth before parsing prot
 
 ## Attribution and hackathon eligibility
 
-The integrated inference pipeline and two trained state classifiers come from the MIT-licensed CashGuard repository. The original license, source commit, preserved hashes and changes are in [third_party](third_party/CASHGUARD_NOTICE.md). RT-DETRv2, OWLv2, DINOv2 and Qwen model weights are downloaded separately under the verified model-card licenses.
+The distribution includes a modified MIT-licensed third-party inference implementation and two trained state classifiers. The original license, source commit, original and distribution hashes and changes are in [third_party](third_party/THIRD_PARTY_NOTICE.md). RT-DETRv2, OWLv2, DINOv2 and Qwen model weights are downloaded separately under the verified model-card licenses.
 
 FAQ 24 permits commercially usable open-source components, while FAQ 35 prohibits ready-made solutions. MIT licensing permits reuse but does **not** establish eligibility under FAQ 35. Organizer approval remains unresolved. Do not claim full competition compliance until that question is settled.
 
@@ -247,5 +247,5 @@ FAQ 24 permits commercially usable open-source components, while FAQ 35 prohibit
 - Run unseen-angle positive/negative tests and record failures and latency.
 - Pass the five-minute end-to-end limit on the actual host under expected load.
 - Generate the private handoff with `tools.prepare_jury_access`; share it only with the jury.
-- Resolve CashGuard reuse eligibility with the organizers.
+- Resolve third-party implementation reuse eligibility with the organizers.
 - Keep all footage, labels, keys, results and private handoff files out of Git.

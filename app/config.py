@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parent.parent
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=ROOT / '.env', extra='ignore')
-    pipeline: Literal['cashguard'] = 'cashguard'
+    pipeline: Literal['visioncore'] = 'visioncore'
     api_key: str = ''
     device: str | None = None
     vlm_backend: Literal['mlx', 'transformers'] = 'mlx'

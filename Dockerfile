@@ -14,11 +14,11 @@ COPY tools/download_event_models.py ./tools/download_event_models.py
 RUN uv sync --locked --no-dev
 RUN python tools/download_event_models.py --vlm transformers
 RUN groupadd --gid 10001 review && useradd --uid 10001 --gid review --no-create-home review \
-    && mkdir -p /service/runtime/jobs /service/runtime/tmp /service/runtime/cashguard \
+    && mkdir -p /service/runtime/jobs /service/runtime/tmp /service/runtime/visioncore \
     && chown -R review:review /service/runtime \
     && chmod -R 700 /service/runtime
 ENV HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 HF_HUB_DISABLE_TELEMETRY=1 \
-    PIPELINE=cashguard VLM_BACKEND=transformers VLM_MODEL=/service/models/Qwen3-VL-4B-Instruct \
+    PIPELINE=visioncore VLM_BACKEND=transformers VLM_MODEL=/service/models/Qwen3-VL-4B-Instruct \
     PRELOAD_MODEL=true TMPDIR=/service/runtime/tmp XDG_CACHE_HOME=/service/runtime/cache
 USER review
 EXPOSE 8000

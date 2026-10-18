@@ -7,8 +7,8 @@
 !README.md
 !app
 !app/*.py
-!app/cashguard
-!app/cashguard/*.py
+!app/visioncore
+!app/visioncore/*.py
 !app/static
 !app/static/*.html
 !app/static/*.css

@@ -88,7 +88,7 @@ class JobManager:
                 return False  # The worker can remove its own cache concurrently.
 
         # A killed model cannot run its finally block; remove stale feature/state caches too.
-        for directory in (Path(__file__).resolve().parents[1] / "runtime/cashguard").glob("*"):
+        for directory in (Path(__file__).resolve().parents[1] / "runtime/visioncore").glob("*"):
             if directory.is_dir():
                 for cached in directory.glob("*.json"):
                     if expired(cached):
