@@ -1,0 +1,7 @@
+{
+  "name": "8bit-ui-checks",
+  "private": true,
+  "type": "module",
+  "scripts": {"test:ui": "node tests/browser.mjs"},
+  "devDependencies": {"playwright": "1.62.1"}
+}

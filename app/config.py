@@ -1,29 +1,33 @@
 from pathlib import Path
+from typing import Literal
 
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+ROOT = Path(__file__).resolve().parent.parent
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
-
-    api_key: str = "jury-demo-key"
-    model_id: str = "r3d_18_kinetics400_v1"
-    model_checkpoint: Path = Path("artifacts/forte_r3d_head.pt")
-    type_checkpoint: Path = Path("artifacts/forte_type_prototypes.pt")
-    decision_threshold: float = Field(default=0.80, ge=0, le=1)
+    model_config = SettingsConfigDict(env_file=ROOT / '.env', extra='ignore')
+    pipeline: Literal['cashguard'] = 'cashguard'
+    api_key: str = ''
+    device: str | None = None
+    vlm_backend: Literal['mlx', 'transformers'] = 'mlx'
+    vlm_model: Path = ROOT / 'models/Qwen3-VL-8B-Instruct-4bit'
+    job_dir: Path = ROOT / 'runtime/jobs'
+    max_pending_jobs: int = Field(default=1, ge=1, le=4)
     max_video_mb: int = Field(default=35, ge=1)
     max_duration_seconds: float = Field(default=180, gt=0)
-    sample_fps: float = Field(default=4.0, gt=0, le=12)
-    window_seconds: float = Field(default=4.0, ge=2, le=8)
-    inference_stride_seconds: float = Field(default=1.0, ge=0.5, le=5)
-    inference_batch_size: int = Field(default=4, ge=1, le=16)
-    max_events: int = Field(default=5, ge=1, le=10)
-    min_event_gap_seconds: float = Field(default=10.0, ge=1, le=60)
-    evidence_count: int = Field(default=3, ge=1, le=3)
+    analysis_timeout_seconds: float = Field(default=270, ge=30, le=290)
     preload_model: bool = True
     job_ttl_seconds: int = Field(default=3600, ge=300)
-    max_parallel_jobs: int = Field(default=1, ge=1, le=4)
+    max_video_pixels: int = Field(default=3840 * 2160, ge=1024)
+    allowed_hosts: list[str] = ['*']
+
+    @field_validator('vlm_model', 'job_dir')
+    @classmethod
+    def absolute_paths(cls, value: Path) -> Path:
+        return value if value.is_absolute() else ROOT / value
 
 
 settings = Settings()
