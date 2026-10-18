@@ -1,0 +1,33 @@
+# Secrets and machine-specific configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+# Private videos, labels, uploads, evidence and reports
+runtime/
+local-evaluation/
+open/
+data/
+handmade video/
+*.mov
+*.MOV
+*.mp4
+*.avi
+*.mkv
+*.docx
+*.xlsx
+*.pdf
+# Downloaded weights and environments
+models/
+.hf-cache/
+.venv*/
+.uv-cache/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+build/
+dist/
+.DS_Store
+*.log

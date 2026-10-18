@@ -1,0 +1,21 @@
+.git
+.venv
+.venv-vlm
+.uv-cache
+models
+local-evaluation
+handmade video
+violation detection.pdf
+.hf-cache
+__pycache__
+.pytest_cache
+artifacts/train_features.npz
+artifacts/event-sheets
+.DS_Store
+data
+*.mov
+*.mp4
+
+runtime
+open
+Кейс_ForteBank.docx

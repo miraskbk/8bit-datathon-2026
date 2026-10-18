@@ -1,0 +1,12 @@
+{
+  "source_commit": "7836a1aace1c2148b08228158f2aca5bf488f8a0",
+  "preserved_sha256": {
+    "rules.py": "a54692ef67050c959018962af1b1ce37f664094ef47c6bf25d48636dc951049b",
+    "scene.py": "589832ccec40f2cf326d514d7e1318e98cb4a110f23d3021be52b7451e899b2b",
+    "vlm_plan.py": "5ffeecc9237b8a9a8de3c7bc176422a336ec7f4a559c71d93e4e7ed0c6e42488",
+    "timeline.py": "79f8b856ab3f8a4d75332a41178fc638223cd437ed24e595ae36305e65e0706c",
+    "machine.py": "2ec3451d6d4fcf7050c54f0d62e53e39da61a5b53231f0ed4e662713634d8716",
+    "safe_clf.joblib": "808e32e0b78640a4549ebc3fda5fe0bc1851219024fe70b832d2c0d75f6b8635",
+    "money_clf.joblib": "45a41fc732ac89b8e8fed2f3cac30be28131f81c89a90fc26b655ac877efe143"
+  }
+}
