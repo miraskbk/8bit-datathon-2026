@@ -19,7 +19,7 @@ handmade video/
 *.xlsx
 *.pdf
 # Downloaded weights and environments
-models/
+/models
 .hf-cache/
 .venv*/
 .uv-cache/
@@ -31,3 +31,9 @@ build/
 dist/
 .DS_Store
 *.log
+
+/node_modules
+
+# Office lock files and previous local deck retained while open
+~$*
+/pitch/8bit-pitch.pptx

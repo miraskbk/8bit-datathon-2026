@@ -1,4 +1,4 @@
-"""CashGuard detector feature extraction (MIT; see third_party/CASHGUARD_LICENSE)."""
+"""VisionCore detector feature extraction (MIT; see third_party/VISION_PIPELINE_LICENSE)."""
 import cv2
 from .video import iter_frames, video_info
 

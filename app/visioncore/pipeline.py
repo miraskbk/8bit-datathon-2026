@@ -1,7 +1,7 @@
 """Анализ одного видео целиком: детекторы → кэш признаков → сцена → [классификаторы сейфа и денег] →
 [VLM: экран ноутбука, дверь] → правила → кадры-доказательства.
 
-    from cashguard.pipeline import Analyzer
+    from visioncore.pipeline import Analyzer
     an = Analyzer()                                   # модели грузятся один раз
     res = an.analyze("data/open/videos/Х-15.mov")     # dict по схеме API (ТЗ, раздел 10)
 
@@ -28,16 +28,16 @@ from .rules import detect
 from .scene import BAG_Q, CACHE, CUP_Q, MONEY_Q, PERSONAL_Q, build_scene, center, inside, iou
 from .video import read_frame
 
-log = logging.getLogger("cashguard.pipeline")
+log = logging.getLogger("visioncore.pipeline")
 
 # Частоты детекторов. 2.5/1 кадр/с вместо 5/2: на обучающих роликах качество то же
 # (14/21, 0 ложных, проверено прореживанием кэша), а обработка ~в 2 раза быстрее — запас по лимиту 5 минут.
-FPS = float(os.environ.get("CASHGUARD_FPS", "2.5"))          # RT-DETR
-OWL_FPS = float(os.environ.get("CASHGUARD_OWL_FPS", "1.0"))  # OWLv2
+FPS = float(os.environ.get("VISIONCORE_FPS", "2.5"))          # RT-DETR
+OWL_FPS = float(os.environ.get("VISIONCORE_OWL_FPS", "1.0"))  # OWLv2
 MAX_FRAMES = 3     # кадров-доказательств на нарушение (ТЗ: 1–3)
 JPEG_QUALITY = 85
 OBJ_THR = 0.2      # порог OWL для рамок предметов на кадре, как в scripts/debug_scene.py
-# необязательные классификаторы состояний (DINOv2 + логрегрессия, cashguard/states.py)
+# необязательные классификаторы состояний (DINOv2 + логрегрессия, visioncore/states.py)
 SAFE_CLF = ROOT / "artifacts" / "safe_clf.joblib"    # «сейф открыт» — правило B
 MONEY_CLF = ROOT / "artifacts" / "money_clf.joblib"  # «деньги на столе» — правила A и C
 # локальная VLM (Qwen3-VL-4B) в моменты событий: L — экран не заблокирован при уходе, H — дверь не закрыта
@@ -197,7 +197,7 @@ def basis(vtype: str) -> str:
 
 
 def _load_clf(name: str, env: str, path: Path):
-    """Необязательный классификатор из cashguard/states.py. Нет модели или ошибка — правило без него."""
+    """Необязательный классификатор из visioncore/states.py. Нет модели или ошибка — правило без него."""
     if os.environ.get(env, "1") == "0":
         log.info("%s off: %s=0", name, env)
         return None
@@ -244,8 +244,8 @@ class Analyzer:
         self.owl = OwlDetector(device=self.coco.dev)
         self.device = self.coco.dev
         self._extract = _load_extract()
-        self.safe_clf = _load_clf("SafeClassifier", "CASHGUARD_SAFE_CLF", SAFE_CLF)
-        self.money_clf = _load_clf("MoneyClassifier", "CASHGUARD_MONEY_CLF", MONEY_CLF)
+        self.safe_clf = _load_clf("SafeClassifier", "VISIONCORE_SAFE_CLF", SAFE_CLF)
+        self.money_clf = _load_clf("MoneyClassifier", "VISIONCORE_MONEY_CLF", MONEY_CLF)
         self.vlm = self._load_vlm()
         self.load_sec = round(time.perf_counter() - t0, 1)
         log.info("models loaded on %s in %.1fs (safe classifier: %s, money classifier: %s, vlm: %s)", self.device,
@@ -254,8 +254,8 @@ class Analyzer:
 
     def _load_vlm(self):
         """Qwen3-VL-4B (~9 ГБ). Не загрузилась — правила L и H молчат, остальное работает."""
-        if os.environ.get("CASHGUARD_VLM", "1") == "0":
-            log.info("vlm off: CASHGUARD_VLM=0")
+        if os.environ.get("VISIONCORE_VLM", "1") == "0":
+            log.info("vlm off: VISIONCORE_VLM=0")
             return None
         try:
             from .vlm import VLM

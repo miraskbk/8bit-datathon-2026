@@ -6,7 +6,7 @@ from types import SimpleNamespace
 import pytest
 from PIL import Image
 
-from app.cashguard_adapter import CashGuardAdapter
+from app.visioncore_adapter import VisionCoreAdapter
 from app.config import Settings
 from app.service import InferenceService
 
@@ -22,12 +22,12 @@ def payload():
 
 
 def test_full_pipeline_result_matches_8bit_ui_schema():
-    result=CashGuardAdapter.convert(payload())
+    result=VisionCoreAdapter.convert(payload())
     assert result.verdict=='violation' and len(result.violations)==1
     event=result.violations[0]
     assert event.timecode_sec==4.2 and event.rule.section=='Point 26'
     assert len(event.evidence_frames)==1 and base64.b64decode(event.evidence_frames[0].image_base64).startswith(b'\xff\xd8')
-    assert result.metadata['pipeline']=='cashguard-integrated-v1' and result.metadata['local_only']
+    assert result.metadata['pipeline']=='visioncore-integrated-v1' and result.metadata['local_only']
 
 
 @pytest.mark.parametrize('component',['safe_classifier','money_classifier','vlm'])
@@ -35,25 +35,25 @@ def test_inference_failure_cannot_become_clean_result(component):
     data=payload();data['violations']=[];data['explain']=[];data['verdict']='no_violation'
     data['meta']['scene'][component]='error'
     with pytest.raises(RuntimeError,match='checks failed'):
-        CashGuardAdapter.convert(data)
+        VisionCoreAdapter.convert(data)
 
 
 def test_missing_evidence_or_source_is_a_failure():
     data=payload();data['violations'][0]['evidence_frames']=[]
     with pytest.raises(ValueError,match='evidence'):
-        CashGuardAdapter.convert(data)
+        VisionCoreAdapter.convert(data)
     data=payload();data['explain'][0]['refs']=[]
     with pytest.raises(ValueError,match='source'):
-        CashGuardAdapter.convert(data)
+        VisionCoreAdapter.convert(data)
 
 
-def test_website_service_invokes_cashguard_path(tmp_path,monkeypatch):
+def test_website_service_invokes_visioncore_path(tmp_path,monkeypatch):
     calls=[]
     class Adapter:
         def __init__(self,config):calls.append('load')
-        def analyze(self,path):calls.append(path);return CashGuardAdapter.convert(payload())
-    monkeypatch.setattr('app.cashguard_adapter.CashGuardAdapter',Adapter)
-    config=Settings(pipeline='cashguard')
+        def analyze(self,path):calls.append(path);return VisionCoreAdapter.convert(payload())
+    monkeypatch.setattr('app.visioncore_adapter.VisionCoreAdapter',Adapter)
+    config=Settings(pipeline='visioncore')
     service=InferenceService(config)
     source=tmp_path/'input.mov'
     first=service.analyze(source);second=service.analyze(source)
@@ -64,6 +64,6 @@ def test_website_service_invokes_cashguard_path(tmp_path,monkeypatch):
 def test_adapter_qualifies_authorization_instead_of_claiming_hidden_fact():
     data=payload();data['explain'][0]['code']='E_unauthorized_person'
     data['violations'][0]['description']='Unsupported original claim'
-    result=CashGuardAdapter.convert(data)
+    result=VisionCoreAdapter.convert(data)
     assert 'Unsupported original claim' not in result.violations[0].description
     assert 'полномочия' in result.violations[0].description

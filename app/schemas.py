@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 class EvidenceFrame(BaseModel):
@@ -30,6 +30,12 @@ class AnalysisResult(BaseModel):
     verdict: Literal["no_violation", "violation"]
     violations: list[ViolationEvent]
 
+    @model_validator(mode='after')
+    def consistent_verdict(self):
+        if (self.verdict == 'violation') != bool(self.violations):
+            raise ValueError('Verdict and violations must agree')
+        return self
+
 
 class AnalyzeAccepted(BaseModel):
     job_id: str
@@ -49,5 +55,5 @@ class Health(BaseModel):
     status: str
     model_loaded: bool
     model: str
-    pipeline_version: str = "r3d-context-v2"
+    pipeline_version: str = "visioncore-integrated-v1"
     semantic_enabled: bool = False

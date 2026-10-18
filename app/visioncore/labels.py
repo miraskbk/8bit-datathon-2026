@@ -15,12 +15,12 @@ LABELS_XLSX = DATA / "open_labels.xlsx"
 TYPES_CSV = ROOT / "labels" / "types.csv"
 
 # Вариант набора: "" — оригинал; иначе синтетический ракурс из data/aug/<variant>/
-VARIANT = os.environ.get("CASHGUARD_VARIANT", "")
+VARIANT = os.environ.get("VISIONCORE_VARIANT", "")
 
 
 def variant_dir(base: str) -> Path:
     """data/<base> для оригинала, data/<base>_<variant> для синтетических ракурсов."""
-    return ROOT / "runtime" / "cashguard" / (f"{base}_{VARIANT}" if VARIANT else base)
+    return ROOT / "runtime" / "visioncore" / (f"{base}_{VARIANT}" if VARIANT else base)
 
 
 def norm_name(name: str) -> str:

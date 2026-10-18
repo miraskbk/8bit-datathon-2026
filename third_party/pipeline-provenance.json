@@ -1,0 +1,32 @@
+{
+  "source_commit": "7836a1aace1c2148b08228158f2aca5bf488f8a0",
+  "upstream_sha256": {
+    "rules.py": "a54692ef67050c959018962af1b1ce37f664094ef47c6bf25d48636dc951049b",
+    "scene.py": "589832ccec40f2cf326d514d7e1318e98cb4a110f23d3021be52b7451e899b2b",
+    "vlm_plan.py": "5ffeecc9237b8a9a8de3c7bc176422a336ec7f4a559c71d93e4e7ed0c6e42488",
+    "timeline.py": "79f8b856ab3f8a4d75332a41178fc638223cd437ed24e595ae36305e65e0706c",
+    "machine.py": "2ec3451d6d4fcf7050c54f0d62e53e39da61a5b53231f0ed4e662713634d8716",
+    "safe_clf.joblib": "808e32e0b78640a4549ebc3fda5fe0bc1851219024fe70b832d2c0d75f6b8635",
+    "money_clf.joblib": "45a41fc732ac89b8e8fed2f3cac30be28131f81c89a90fc26b655ac877efe143"
+  },
+  "distribution_sha256": {
+    "app/visioncore/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "app/visioncore/detectors.py": "154b4223177475d84cbf8e9e92e15466f0e760208d56977f42b0c4fe1e201496",
+    "app/visioncore/embed.py": "50b5da00e637ecfac891603a32f7479abaac771a4d9318caf3e4a758239a8585",
+    "app/visioncore/extract.py": "061e5f15b82fa17de0fe2b45b03d6e0fb96ea5e21101dc77aa001346881ea810",
+    "app/visioncore/labels.py": "f8ed26b2b2b2f4424e315e2e9b66b54d00343b9caaa2b301a6ec56f6f6bdd3a4",
+    "app/visioncore/machine.py": "2ec3451d6d4fcf7050c54f0d62e53e39da61a5b53231f0ed4e662713634d8716",
+    "app/visioncore/norms.py": "625eef3195ee7e0a97ea48b0073078af307dbf8fc9db9f4ddbb130eb14f4a34b",
+    "app/visioncore/pipeline.py": "38d179fced97b6f4cd24ce3f34bfda74b9a32bc4c49d8b042252258138f460f8",
+    "app/visioncore/registry.py": "05cd99f336a0615485859a90506593783df05143708cbb195e6a7ba9a775f792",
+    "app/visioncore/rules.py": "a54692ef67050c959018962af1b1ce37f664094ef47c6bf25d48636dc951049b",
+    "app/visioncore/scene.py": "589832ccec40f2cf326d514d7e1318e98cb4a110f23d3021be52b7451e899b2b",
+    "app/visioncore/states.py": "1b25cd2e2e952ac6d456f3cf0213df04ded7c588ddf37ac7be061a5625f591e8",
+    "app/visioncore/timeline.py": "79f8b856ab3f8a4d75332a41178fc638223cd437ed24e595ae36305e65e0706c",
+    "app/visioncore/video.py": "f5feffd81abacaf56457f1bad5be9a00362d4dfee428588d295a6d626031a80b",
+    "app/visioncore/vlm.py": "4d76e8f4ed9c125d83e104073630d4091875294cbad57e122bcb35aaa86b3763",
+    "app/visioncore/vlm_plan.py": "5ffeecc9237b8a9a8de3c7bc176422a336ec7f4a559c71d93e4e7ed0c6e42488",
+    "artifacts/safe_clf.joblib": "808e32e0b78640a4549ebc3fda5fe0bc1851219024fe70b832d2c0d75f6b8635",
+    "artifacts/money_clf.joblib": "45a41fc732ac89b8e8fed2f3cac30be28131f81c89a90fc26b655ac877efe143"
+  }
+}

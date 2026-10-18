@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import math
 import tempfile
 import time
 from contextlib import asynccontextmanager
@@ -11,10 +12,12 @@ from fastapi.responses import FileResponse
 from fastapi.security import APIKeyHeader
 from fastapi.staticfiles import StaticFiles
 from starlette.concurrency import run_in_threadpool
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from app.config import settings
 from app.schemas import AnalyzeAccepted, Health, JobResponse
 from app.jobs import JobManager, QueueFull
+from app.security import RequestProtection
 import secrets
 
 
@@ -33,8 +36,8 @@ jobs = JobManager(settings)
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     global jobs
-    if not settings.api_key or settings.api_key in {"jury-demo-key", "replace-with-a-private-jury-key"}:
-        raise RuntimeError("Set a private API_KEY in .env before starting the service")
+    if len(settings.api_key) < 32 or settings.api_key == "replace-with-a-private-jury-key":
+        raise RuntimeError("Set a private API_KEY of at least 32 characters before starting the service")
     jobs = JobManager(settings)
     jobs.start()
     try:
@@ -54,7 +57,11 @@ app = FastAPI(
         "кассовой дисциплины. Результат является подсказкой для проверки человеком."
     ),
     lifespan=lifespan,
+    docs_url=None,
+    redoc_url=None,
 )
+app.add_middleware(RequestProtection, config=settings)
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.allowed_hosts)
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 
@@ -63,13 +70,25 @@ def index() -> FileResponse:
     return FileResponse(static_dir / "index.html")
 
 
+@app.get('/docs', include_in_schema=False)
+def api_docs() -> FileResponse:
+    return FileResponse(static_dir / 'api.html')
+
+
 @app.get("/health", response_model=Health, tags=["service"])
 def health() -> Health:
     ready = getattr(jobs.worker, "ready", jobs.worker.loaded)
     return Health(status="ok" if ready else "starting", model_loaded=ready,
-                  model="CashGuard RT-DETRv2 + OWLv2 + DINOv2 + local Qwen",
-                  pipeline_version="cashguard-integrated-v1",
+                  model="VisionCore RT-DETRv2 + OWLv2 + DINOv2 + local Qwen",
+                  pipeline_version="visioncore-integrated-v1",
                   semantic_enabled=True)
+
+
+@app.get('/ready', tags=['service'])
+def readiness():
+    if not getattr(jobs.worker, 'ready', jobs.worker.loaded):
+        raise HTTPException(503, 'Models are not ready; check local weights and service logs')
+    return {'status': 'ready'}
 
 
 @app.get("/api/v1/capabilities", tags=["service"])
@@ -77,7 +96,8 @@ def capabilities():
     return {"max_video_mb": settings.max_video_mb, "max_duration_seconds": settings.max_duration_seconds,
             "analysis_timeout_seconds": settings.analysis_timeout_seconds, "formats": [".mov"],
             "local_only": True, "audio": False, "face_identification": False,
-            "pipeline": settings.pipeline}
+            "pipeline": settings.pipeline, "max_video_pixels": settings.max_video_pixels,
+            "result_ttl_seconds": settings.job_ttl_seconds, "max_pending_jobs": settings.max_pending_jobs}
 
 
 
@@ -107,7 +127,7 @@ async def analyze(file: UploadFile = File(..., description="Video in .mov format
     if suffix != ".mov":
         await file.close()
         raise HTTPException(415, "The jury API accepts .mov files")
-    fd, raw_path = tempfile.mkstemp(prefix="forte-analysis-", suffix=".mov")
+    fd, raw_path = tempfile.mkstemp(prefix="upload-", suffix=".mov", dir=settings.job_dir)
     os.close(fd)
     path = Path(raw_path)
     accepted = False
@@ -122,8 +142,12 @@ async def analyze(file: UploadFile = File(..., description="Video in .mov format
                     raise ValueError("No video stream")
                 stream = container.streams.video[0]
                 duration = float(stream.duration * stream.time_base) if stream.duration is not None else float(container.duration or 0)/av.time_base
+                if not math.isfinite(duration) or duration <= 0:
+                    raise HTTPException(422, 'Video must have a known positive duration')
                 if duration > settings.max_duration_seconds:
                     raise HTTPException(422, f"Video exceeds {settings.max_duration_seconds:g} seconds")
+                if stream.width * stream.height > settings.max_video_pixels:
+                    raise HTTPException(422, 'Video resolution exceeds the supported pixel limit')
                 # A header alone does not establish a decodable video.
                 next(container.decode(stream))
         await run_in_threadpool(validate_video)
@@ -135,7 +159,7 @@ async def analyze(file: UploadFile = File(..., description="Video in .mov format
     except QueueFull as exc:
         raise HTTPException(429, str(exc), headers={"Retry-After": "15"}) from exc
     except Exception as exc:
-        raise HTTPException(422, f"Invalid MOV video: {exc}") from exc
+        raise HTTPException(422, "Invalid or unsupported MOV video") from exc
     finally:
         if not accepted:
             path.unlink(missing_ok=True)

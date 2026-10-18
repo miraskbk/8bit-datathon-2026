@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parent.parent
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=ROOT / '.env', extra='ignore')
-    pipeline: Literal['cashguard'] = 'cashguard'
+    pipeline: Literal['visioncore'] = 'visioncore'
     api_key: str = ''
     device: str | None = None
     vlm_backend: Literal['mlx', 'transformers'] = 'mlx'
@@ -21,6 +21,8 @@ class Settings(BaseSettings):
     analysis_timeout_seconds: float = Field(default=270, ge=30, le=290)
     preload_model: bool = True
     job_ttl_seconds: int = Field(default=3600, ge=300)
+    max_video_pixels: int = Field(default=3840 * 2160, ge=1024)
+    allowed_hosts: list[str] = ['*']
 
     @field_validator('vlm_model', 'job_dir')
     @classmethod

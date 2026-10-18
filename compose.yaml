@@ -1,0 +1,54 @@
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    init: true
+    gpus: all
+    env_file: .env
+    environment:
+      PIPELINE: visioncore
+      VLM_BACKEND: transformers
+      VLM_MODEL: /service/models/Qwen3-VL-4B-Instruct
+      JOB_DIR: /service/runtime/jobs
+      PRELOAD_MODEL: "true"
+      HF_HUB_OFFLINE: "1"
+      TRANSFORMERS_OFFLINE: "1"
+      HF_HUB_DISABLE_TELEMETRY: "1"
+    volumes:
+      - private_runtime:/service/runtime
+    networks: [inference]
+    read_only: true
+    tmpfs:
+      - /tmp:size=512m,mode=1777
+    shm_size: 2gb
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    stop_grace_period: 15s
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: "3"}
+  gateway:
+    image: caddy:2.11-alpine
+    restart: unless-stopped
+    environment:
+      DEMO_DOMAIN: ${DEMO_DOMAIN:?Set DEMO_DOMAIN in .env to your public DNS name}
+    ports: ["80:80", "443:443", "443:443/udp"]
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks: [public, inference]
+    depends_on:
+      app:
+        condition: service_healthy
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: "3"}
+networks:
+  public: {}
+  inference:
+    internal: true
+volumes:
+  private_runtime: {}
+  caddy_data: {}
+  caddy_config: {}

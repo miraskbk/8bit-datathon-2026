@@ -1,21 +1,24 @@
-.git
-.venv
-.venv-vlm
-.uv-cache
-models
-local-evaluation
-handmade video
-violation detection.pdf
-.hf-cache
-__pycache__
-.pytest_cache
-artifacts/train_features.npz
-artifacts/event-sheets
-.DS_Store
-data
-*.mov
-*.mp4
-
-runtime
-open
-Кейс_ForteBank.docx
+# Only the runtime sources below may enter the image build context.
+**
+!.dockerignore
+!Dockerfile
+!pyproject.toml
+!uv.lock
+!README.md
+!app
+!app/*.py
+!app/visioncore
+!app/visioncore/*.py
+!app/static
+!app/static/*.html
+!app/static/*.css
+!app/static/*.js
+!artifacts
+!artifacts/safe_clf.joblib
+!artifacts/money_clf.joblib
+!docs
+!docs/*.md
+!third_party
+!third_party/*
+!tools
+!tools/download_event_models.py

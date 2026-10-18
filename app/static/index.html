@@ -12,7 +12,7 @@
       <span class="brand-mark">F</span>
       <span><strong>forte</strong><small>vision review</small></span>
     </a>
-    <nav><a href="/docs" target="_blank">API documentation</a><a href="/health" target="_blank">System status</a></nav>
+    <nav aria-label="Навигация"><a href="/docs">API и доступ для жюри</a><a href="/health" target="_blank" rel="noopener">Статус сервиса</a></nav>
   </header>
 
   <main>
@@ -20,7 +20,14 @@
       <p class="eyebrow">Локальный видеоанализ</p>
       <h1>Проверка кассовой дисциплины по видеозаписи</h1>
       <p class="lede">Сервис находит визуальные признаки возможных нарушений, показывает точный фрагмент и связывает наблюдение с открытым нормативным источником.</p>
-      <div class="privacy"><span></span>Видео обрабатывается локально и удаляется после анализа. Лица не распознаются.</div>
+      <div class="privacy"><span></span>Все модели работают на сервере команды без облачных AI API. Видео удаляется после обработки. Идентификация лиц и анализ звука не выполняются.</div>
+    </section>
+
+    <section class="access-panel" aria-labelledby="access-title">
+      <div><h2 id="access-title">Доступ для жюри</h2><p>Откройте эту страницу по HTTPS-адресу команды. Ключ передаётся жюри отдельно; он не опубликован на сайте или в GitHub.</p></div>
+      <p id="service-status" role="status">Проверяем готовность моделей…</p>
+      <dl class="endpoint-list"><dt>Адрес сервиса</dt><dd id="service-url"></dd><dt>Загрузка</dt><dd>POST <code>/api/v1/analyze</code> · multipart <code>file</code></dd><dt>Результат</dt><dd>GET <code>/api/v1/jobs/{job_id}</code></dd><dt>Авторизация</dt><dd><code>X-API-Key</code> на обоих запросах</dd></dl>
+      <p class="result-note">Лимит проверки жюри — 5 минут. <a href="/docs">Инструкция API и JSON-схема</a>. Результаты доступны только с ключом и автоматически удаляются по сроку хранения.</p>
     </section>
 
     <section class="workspace">
@@ -30,7 +37,7 @@
           <div><h2>Загрузите запись</h2><p id="upload-limits">Формат MOV · проверяем ограничения сервиса…</p></div>
         </div>
 
-        <label class="dropzone" id="dropzone" for="video-input">
+        <label class="dropzone" id="dropzone" for="video-input" tabindex="0" role="button" aria-label="Выбрать видео MOV">
           <input id="video-input" type="file" accept=".mov,video/quicktime">
           <span class="upload-icon">↑</span>
           <strong id="drop-title">Перетащите видео сюда</strong>
@@ -39,15 +46,18 @@
 
         <div class="key-row">
           <label for="api-key">X-API-Key</label>
-          <input id="api-key" type="password" placeholder="Введите ключ жюри" autocomplete="off">
+          <input id="api-key" type="password" placeholder="Введите ключ жюри" autocomplete="off" aria-describedby="key-help">
         </div>
+        <p id="key-help" class="helper">Используйте ключ, полученный от команды. Ключ хранится только в памяти этой страницы.</p>
         <button class="primary" id="analyze-button" disabled>Запустить анализ</button>
 
-        <div class="progress-wrap" id="progress-wrap" hidden>
+        <div class="progress-wrap" id="progress-wrap" role="status" aria-live="polite" hidden>
           <div class="progress-copy"><strong id="progress-title">Видео принято</strong><span id="progress-time">00:00</span></div>
           <div class="progress"><span id="progress-bar"></span></div>
           <p id="progress-detail">Декодируем запись и анализируем последовательности действий…</p>
         </div>
+        <p id="job-record" class="helper" hidden>Номер проверки: <code id="job-id">—</code></p>
+        <button id="retry-status" class="report-download" type="button" hidden>Повторно получить результат</button>
         <p class="error" id="error" role="alert" hidden></p>
       </div>
 
@@ -57,12 +67,13 @@
           <div><h2>Видео и события</h2><p>Нажмите на таймкод, чтобы перейти к эпизоду</p></div>
         </div>
         <div class="video-empty" id="video-empty"><span>00:00</span><p>Предпросмотр появится после выбора файла</p></div>
-        <video id="video-preview" controls playsinline hidden></video>
+        <video id="video-preview" controls playsinline muted preload="metadata" hidden></video>
+        <p id="preview-note" class="helper" hidden>Браузер не поддерживает кодек предпросмотра. Можно продолжить анализ: сервер отдельно проверит файл.</p>
         <div id="timeline" class="timeline" hidden><span></span></div>
       </div>
     </section>
 
-    <section class="results" id="results" hidden>
+    <section class="results" id="results" tabindex="-1" aria-live="polite" hidden>
       <div class="result-header">
         <div><p class="eyebrow">Результат анализа</p><h2 id="verdict-title"></h2></div>
         <span class="verdict" id="verdict-badge"></span>
@@ -83,7 +94,8 @@
     </section>
   </main>
 
-  <footer><span>ForteBank Datathon 26</span><span>Event and state analysis · local inference · no face identification</span></footer>
+  <footer><span>8bit · ForteBank Datathon 26 · прототип для проверки человеком</span><span>Event and state analysis · local inference · no face identification</span></footer>
+  <noscript><p class="error">Для загрузки через интерфейс включите JavaScript. API доступен без JavaScript по инструкции /docs.</p></noscript>
   <script src="/static/app.js" defer></script>
 </body>
 </html>

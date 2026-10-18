@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import re
 import threading
 import time
@@ -9,8 +10,10 @@ import uuid
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-from app.schemas import JobResponse
+from app.schemas import AnalysisResult, JobResponse
 from app.worker import ModelWorker
+
+log = logging.getLogger(__name__)
 
 
 class QueueFull(RuntimeError):
@@ -34,6 +37,7 @@ class JobManager:
             if self._started:
                 return
             self.config.job_dir.mkdir(parents=True, exist_ok=True, mode=0o700)
+            self.config.job_dir.chmod(0o700)
             import fcntl
             self._lease = (self.config.job_dir / ".service.lock").open("a")
             try:
@@ -53,6 +57,9 @@ class JobManager:
             # Uploads are private runtime data, never training inputs.
             for path in self.config.job_dir.glob("*.mov"):
                 path.unlink(missing_ok=True)
+            for pattern in ('*.tmp', '*.result.json'):
+                for path in self.config.job_dir.glob(pattern):
+                    path.unlink(missing_ok=True)
             self._cleanup()
             self._started = True
             self._janitor_thread = threading.Thread(target=self._janitor, daemon=True)
@@ -60,8 +67,11 @@ class JobManager:
 
     def _janitor(self):
         while not self._shutdown.wait(60):
-            with self._lock:
-                self._cleanup()
+            try:
+                with self._lock:
+                    self._cleanup()
+            except OSError:
+                log.exception('Runtime cleanup failed; will retry')
 
     def _save(self, created, response):
         path = self.config.job_dir / f"{response.job_id}.json"
@@ -71,14 +81,20 @@ class JobManager:
         temporary.replace(path)
 
     def _cleanup(self):
+        def expired(path):
+            try:
+                return path.stat().st_mtime < time.time()-self.config.job_ttl_seconds
+            except FileNotFoundError:
+                return False  # The worker can remove its own cache concurrently.
+
         # A killed model cannot run its finally block; remove stale feature/state caches too.
-        for directory in (Path(__file__).resolve().parents[1] / "runtime/cashguard").glob("*"):
+        for directory in (Path(__file__).resolve().parents[1] / "runtime/visioncore").glob("*"):
             if directory.is_dir():
                 for cached in directory.glob("*.json"):
-                    if cached.stat().st_mtime < time.time()-self.config.job_ttl_seconds:
+                    if expired(cached):
                         cached.unlink(missing_ok=True)
         for path in self.config.job_dir.glob("*.json"):
-            if path.stat().st_mtime < time.time()-self.config.job_ttl_seconds:
+            if expired(path):
                 path.unlink(missing_ok=True)
 
     def submit(self, path: Path, started=None):
@@ -98,10 +114,14 @@ class JobManager:
 
     def _run(self, job_id, path, created, deadline):
         try:
-            result = self.worker.analyze(path, deadline)
-            response = JobResponse(job_id=job_id, status="done", **result)
+            result = AnalysisResult.model_validate(self.worker.analyze(path, deadline))
+            response = JobResponse(job_id=job_id, status="done", **result.model_dump())
         except Exception as exc:
-            response = JobResponse(job_id=job_id, status="failed", error=str(exc))
+            log.exception('Analysis failed for job %s', job_id)
+            error = ('Analysis deadline exceeded; retry or contact the service operator'
+                     if isinstance(exc, TimeoutError) else
+                     'Analysis failed; contact the service operator with this job_id')
+            response = JobResponse(job_id=job_id, status="failed", error=error)
         finally:
             path.unlink(missing_ok=True)
             path.with_suffix(".result.json").unlink(missing_ok=True)

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ru">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>8bit — API для жюри</title><link rel="stylesheet" href="/static/styles.css"></head>
+<body>
+<header class="topbar"><a class="brand" href="/"><strong>8bit review</strong></a><nav><a href="/">Проверка видео</a><a href="/openapi.json">OpenAPI JSON</a></nav></header>
+<main class="api-page">
+<section class="hero"><p class="eyebrow">Инструкция для жюри</p><h1>API проверки видео</h1><p class="lede">Тот же сервис и результаты, что в интерфейсе. Два запроса с заголовком X-API-Key. Все модели работают локально внутри сервиса.</p></section>
+<h2>1. Адрес и ключ</h2><p>Используйте публичный HTTPS-адрес, полученный от команды. Для локального запуска адрес — <code>http://127.0.0.1:8003</code>. Команда передаёт API-ключ отдельно. Ключ отсутствует в GitHub, URL и открытых страницах. В командах ниже замените адрес и ключ своими значениями.</p>
+<pre>export SERVICE_URL='https://your-team-domain.example'
+read -r -s JURY_API_KEY
+export JURY_API_KEY</pre>
+<h2>2. Готовность</h2><p><code>GET /health</code> возвращает состояние моделей. <code>GET /ready</code> возвращает HTTP 200 только после загрузки моделей, иначе 503. Уточните ограничения через <code>GET /api/v1/capabilities</code>.</p>
+<h2>3. Загрузка MOV</h2>
+<pre>curl --fail-with-body -X POST "$SERVICE_URL/api/v1/analyze" \
+  -H "X-API-Key: $JURY_API_KEY" \
+  -F 'file=@your-video.mov'</pre>
+<p>Ответ HTTP 202:</p><pre>{"job_id":"3f2a9c1e3f2a9c1e3f2a9c1e3f2a9c1e","status":"processing"}</pre>
+<h2>4. Опрос результата</h2>
+<pre>curl --fail-with-body \
+  "$SERVICE_URL/api/v1/jobs/3f2a9c1e3f2a9c1e3f2a9c1e3f2a9c1e" \
+  -H "X-API-Key: $JURY_API_KEY"</pre>
+<p>Повторяйте запрос примерно раз в 2 секунды до <code>done</code> или <code>failed</code>. На обработку жюри отводит 5 минут. При стандартной конфигурации сервер завершает или останавливает задачу за 270 секунд после начала приёма файла обработчиком. Проверяйте сервис на целевом оборудовании до сдачи.</p>
+<pre>{
+  "job_id": "3f2a9c1e3f2a9c1e3f2a9c1e3f2a9c1e",
+  "status": "done",
+  "verdict": "violation",
+  "violations": [{
+    "type": "Название наблюдаемого события",
+    "timecode_sec": 44.2,
+    "description": "Видимое действие и основание для проверки человеком",
+    "evidence_frames": [{
+      "timestamp_sec": 44.2,
+      "image_base64": "&lt;JPEG, закодированный в base64&gt;"
+    }],
+    "rule": {
+      "document": "Название акта РК",
+      "section": "Пункт или раздел",
+      "url": "https://adilet.zan.kz/rus/docs/..."
+    }
+  }]
+}</pre>
+<p>Это пример схемы, а не результат реального видео. Каждый готовый положительный результат содержит 1–3 настоящих JPEG-кадра на событие. <code>no_violation</code> сопровождается пустым списком <code>violations</code>. Для <code>processing</code> и <code>failed</code> вердикт равен <code>null</code>. Поля <code>rule</code>, <code>metadata</code>, <code>confidence</code> и <code>error</code> расширяют обязательную схему.</p>
+<h2>Ограничения и ошибки</h2>
+<table><thead><tr><th>Код</th><th>Значение</th></tr></thead><tbody>
+<tr><td>401</td><td>Отсутствует или неверен X-API-Key</td></tr>
+<tr><td>404</td><td>Проверка не найдена или срок хранения истёк</td></tr>
+<tr><td>413</td><td>Превышен размер файла или запроса</td></tr>
+<tr><td>415</td><td>Неверное расширение. Допускается .mov и .MOV</td></tr>
+<tr><td>422</td><td>Пустой, повреждённый, неподдерживаемый или слишком длинный файл, превышение разрешения</td></tr>
+<tr><td>429</td><td>Все места заняты. Retry-After: 15. По умолчанию одна задача за раз</td></tr>
+<tr><td>503</td><td>Модели не готовы на /ready</td></tr></tbody></table>
+<p>Стандартные ограничения: 35 МиБ, 180 секунд, до 3840 × 2160 пикселей на кадр, одна принятая задача. Записывайте <code>job_id</code> для диагностики. Если связь пропала после получения номера, продолжайте опрашивать эту задачу вместо повторной загрузки.</p>
+<h2>Данные и трактовка результата</h2><p>Сервис отклоняет запросы к защищённым путям без ключа до разбора загружаемого файла. Видео удаляется после обработки или восстановления после перезапуска. Результаты и кадры доступны с ключом в течение часа, затем удаляются. Промежуточные данные удаляются после задачи, аварийные остатки — по сроку хранения. Выгруженные вами отчёты остаются на вашем устройстве.</p><p>Звук и идентификация лиц не используются. Сервис не обучается на загруженных файлах и не отправляет видео, кадры или их описания облачным AI-сервисам. Невидимые операции, полномочия людей и завершение транзакций не подтверждаются по видео. Результат требует проверки человеком.</p>
+</main></body></html>
